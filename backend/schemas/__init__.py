@@ -1,5 +1,5 @@
 from .article import ArticleRequest, Article
-from .event import Event, EventType, Direction, Magnitude
+from .event import Event, EventType, Direction, Magnitude, TimeHorizon
 from .impact import ImpactCandidate, ImpactLayer
 from .analysis import FinalAnalysis
 
@@ -10,6 +10,7 @@ __all__ = [
     "EventType",
     "Direction",
     "Magnitude",
+    "TimeHorizon",
     "ImpactCandidate",
     "ImpactLayer",
     "FinalAnalysis",

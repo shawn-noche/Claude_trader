@@ -1,0 +1,282 @@
+[
+  {
+    "from": "NVDA",
+    "to": "TSM",
+    "type": "foundry_customer",
+    "strength": "critical",
+    "description": "NVIDIA is fabless; all leading-node GPUs (Hopper H100/H200, Blackwell B200/GB200) are manufactured at TSMC on N4/N3 nodes. NVDA is among TSMC's largest customers."
+  },
+  {
+    "from": "NVDA",
+    "to": "HXSCL",
+    "type": "memory_customer",
+    "strength": "critical",
+    "description": "SK Hynix is the primary HBM3E supplier for NVIDIA H100, H200, and early Blackwell systems. NVIDIA allocates the majority of HBM capacity to SK Hynix."
+  },
+  {
+    "from": "NVDA",
+    "to": "MU",
+    "type": "memory_customer",
+    "strength": "significant",
+    "description": "Micron supplies HBM3E for NVIDIA GB200 NVL72 Blackwell systems, gaining share alongside SK Hynix in the Blackwell generation."
+  },
+  {
+    "from": "NVDA",
+    "to": "AMKR",
+    "type": "packaging_customer",
+    "strength": "moderate",
+    "description": "Amkor performs advanced packaging for certain NVIDIA products. TSMC CoWoS is the primary packaging path for high-end AI GPUs."
+  },
+  {
+    "from": "NVDA",
+    "to": "SMCI",
+    "type": "component_supplier_to",
+    "strength": "critical",
+    "description": "SMCI builds GPU servers and rack-scale DGX/HGX systems around NVIDIA GPUs. SMCI is the largest NVIDIA system integrator by volume; NVIDIA GPU shipments directly drive SMCI revenue."
+  },
+  {
+    "from": "NVDA",
+    "to": "DELL",
+    "type": "component_supplier_to",
+    "strength": "significant",
+    "description": "Dell PowerEdge AI servers integrate NVIDIA H100/H200/B200 GPUs. Dell is a major NVIDIA AI server ODM partner."
+  },
+  {
+    "from": "NVDA",
+    "to": "HPE",
+    "type": "component_supplier_to",
+    "strength": "moderate",
+    "description": "HPE integrates NVIDIA GPUs in ProLiant and Cray supercomputing systems."
+  },
+  {
+    "from": "AMD",
+    "to": "TSM",
+    "type": "foundry_customer",
+    "strength": "critical",
+    "description": "AMD is fabless; all leading-node CPUs (EPYC) and AI GPUs (MI300X, MI325X) are manufactured at TSMC on N4/N3 nodes."
+  },
+  {
+    "from": "AMD",
+    "to": "HXSCL",
+    "type": "memory_customer",
+    "strength": "significant",
+    "description": "SK Hynix supplies HBM3E for AMD MI300X and subsequent Instinct AI GPUs."
+  },
+  {
+    "from": "AMD",
+    "to": "MU",
+    "type": "memory_customer",
+    "strength": "moderate",
+    "description": "Micron supplies HBM for AMD Instinct AI GPU series, competing with SK Hynix."
+  },
+  {
+    "from": "AVGO",
+    "to": "TSM",
+    "type": "foundry_customer",
+    "strength": "significant",
+    "description": "Broadcom is fabless for leading-edge products; custom AI ASICs (XPU) and networking silicon are manufactured at TSMC."
+  },
+  {
+    "from": "MRVL",
+    "to": "TSM",
+    "type": "foundry_customer",
+    "strength": "significant",
+    "description": "Marvell is fabless; custom AI ASICs and networking silicon are manufactured at TSMC on N5/N3 nodes."
+  },
+  {
+    "from": "QCOM",
+    "to": "TSM",
+    "type": "foundry_customer",
+    "strength": "significant",
+    "description": "Qualcomm is fabless; Snapdragon mobile SoCs and Snapdragon X PC chips are manufactured at TSMC."
+  },
+  {
+    "from": "ASML",
+    "to": "TSM",
+    "type": "equipment_supplier",
+    "strength": "critical",
+    "description": "ASML EUV systems are required for TSMC N3/N2 node production. TSMC is ASML's largest customer. EUV system delivery schedule is a gating factor for leading-node capacity ramp."
+  },
+  {
+    "from": "ASML",
+    "to": "INTC",
+    "type": "equipment_supplier",
+    "strength": "critical",
+    "description": "ASML supplies EUV systems to Intel Foundry for 18A/14A node ramp. Intel is a major ASML customer for both EUV and High-NA EUV."
+  },
+  {
+    "from": "ASML",
+    "to": "SSNLF",
+    "type": "equipment_supplier",
+    "strength": "significant",
+    "description": "ASML supplies EUV systems to Samsung Foundry and Samsung memory for leading-edge DRAM."
+  },
+  {
+    "from": "AMAT",
+    "to": "TSM",
+    "type": "equipment_supplier",
+    "strength": "significant",
+    "description": "Applied Materials supplies deposition, etch, and CMP equipment to TSMC for all process nodes."
+  },
+  {
+    "from": "AMAT",
+    "to": "INTC",
+    "type": "equipment_supplier",
+    "strength": "significant",
+    "description": "Applied Materials supplies deposition and process equipment to Intel Foundry."
+  },
+  {
+    "from": "AMAT",
+    "to": "SSNLF",
+    "type": "equipment_supplier",
+    "strength": "significant",
+    "description": "Applied Materials supplies equipment to Samsung for both foundry and memory manufacturing."
+  },
+  {
+    "from": "LRCX",
+    "to": "TSM",
+    "type": "equipment_supplier",
+    "strength": "significant",
+    "description": "Lam Research supplies etch and deposition equipment to TSMC. Critical for advanced node patterning."
+  },
+  {
+    "from": "LRCX",
+    "to": "HXSCL",
+    "type": "equipment_supplier",
+    "strength": "significant",
+    "description": "Lam Research supplies etch equipment critical for SK Hynix HBM and DRAM manufacturing."
+  },
+  {
+    "from": "LRCX",
+    "to": "MU",
+    "type": "equipment_supplier",
+    "strength": "significant",
+    "description": "Lam Research supplies etch and deposition equipment to Micron for DRAM and HBM manufacturing."
+  },
+  {
+    "from": "KLAC",
+    "to": "TSM",
+    "type": "equipment_supplier",
+    "strength": "significant",
+    "description": "KLA supplies process control and inspection equipment to TSMC for yield management at all nodes."
+  },
+  {
+    "from": "GOOGL",
+    "to": "AVGO",
+    "type": "asic_customer",
+    "strength": "critical",
+    "description": "Google co-designs TPU AI accelerators with Broadcom. Broadcom is the primary manufacturing and packaging partner for Google TPU v4/v5. This is among Broadcom's largest revenue relationships."
+  },
+  {
+    "from": "META",
+    "to": "AVGO",
+    "type": "asic_customer",
+    "strength": "significant",
+    "description": "Meta is developing MTIA custom AI inference chips with Broadcom as the silicon partner."
+  },
+  {
+    "from": "AMZN",
+    "to": "MRVL",
+    "type": "asic_customer",
+    "strength": "significant",
+    "description": "Marvell supplies custom networking ASICs to Amazon AWS and is a design partner for AWS custom silicon programs."
+  },
+  {
+    "from": "MSFT",
+    "to": "NVDA",
+    "type": "major_customer",
+    "strength": "critical",
+    "description": "Microsoft Azure is the largest external buyer of NVIDIA AI GPUs. Azure GPU cluster buildout (H100, H200, B200) drives significant NVIDIA data center revenue. Microsoft capex guidance is a leading indicator for NVIDIA."
+  },
+  {
+    "from": "META",
+    "to": "NVDA",
+    "type": "major_customer",
+    "strength": "critical",
+    "description": "Meta is one of the largest buyers of NVIDIA H100/B200 GPUs for Llama model training and recommendation system inference."
+  },
+  {
+    "from": "AMZN",
+    "to": "NVDA",
+    "type": "major_customer",
+    "strength": "significant",
+    "description": "AWS purchases NVIDIA GPUs for EC2 P5 instances (H100) alongside custom Trainium silicon."
+  },
+  {
+    "from": "GOOGL",
+    "to": "NVDA",
+    "type": "major_customer",
+    "strength": "moderate",
+    "description": "Google buys NVIDIA GPUs for GCP A3 instances and research workloads, alongside custom TPUs."
+  },
+  {
+    "from": "MSFT",
+    "to": "ANET",
+    "type": "networking_customer",
+    "strength": "critical",
+    "description": "Microsoft Azure is among Arista's largest customers for data center spine/leaf Ethernet switching. Azure AI cluster networking expansion drives Arista revenue."
+  },
+  {
+    "from": "META",
+    "to": "ANET",
+    "type": "networking_customer",
+    "strength": "significant",
+    "description": "Meta uses Arista switches extensively in data center fabric. Meta AI cluster networking expansion is a demand driver."
+  },
+  {
+    "from": "AMZN",
+    "to": "ANET",
+    "type": "networking_customer",
+    "strength": "moderate",
+    "description": "AWS uses Arista in portions of its data center networking alongside custom merchant silicon."
+  },
+  {
+    "from": "MSFT",
+    "to": "SMCI",
+    "type": "server_customer",
+    "strength": "significant",
+    "description": "Microsoft Azure procures AI GPU servers from SMCI for Azure AI deployments."
+  },
+  {
+    "from": "AMZN",
+    "to": "SMCI",
+    "type": "server_customer",
+    "strength": "moderate",
+    "description": "AWS procures GPU servers from SMCI alongside direct ODM relationships."
+  },
+  {
+    "from": "MSFT",
+    "to": "VRT",
+    "type": "infrastructure_customer",
+    "strength": "significant",
+    "description": "Microsoft data centers use Vertiv power and cooling infrastructure. AI GPU density increases drive liquid cooling demand from Vertiv."
+  },
+  {
+    "from": "AMZN",
+    "to": "VRT",
+    "type": "infrastructure_customer",
+    "strength": "significant",
+    "description": "AWS data centers use Vertiv UPS, PDUs, and cooling systems. Growing AI workload power density accelerates Vertiv procurement."
+  },
+  {
+    "from": "GOOGL",
+    "to": "VRT",
+    "type": "infrastructure_customer",
+    "strength": "significant",
+    "description": "Google data centers rely on Vertiv for power and thermal management, with liquid cooling requirements increasing with TPU and GPU deployments."
+  },
+  {
+    "from": "ANET",
+    "to": "COHR",
+    "type": "component_customer",
+    "strength": "significant",
+    "description": "Arista switches use Coherent optical transceivers for inter-rack and inter-DC connectivity. 400G/800G transceiver demand is driven by Arista customer data center buildouts."
+  },
+  {
+    "from": "SMCI",
+    "to": "NVDA",
+    "type": "component_customer",
+    "strength": "critical",
+    "description": "SMCI GPU servers and HGX baseboard systems are built around NVIDIA GPU modules. SMCI revenue is highly correlated with NVIDIA GPU availability and pricing."
+  }
+]

@@ -8,9 +8,10 @@ from fastapi.testclient import TestClient
 
 from backend.main import app
 from backend.schemas.article import Article
+from backend.schemas.event import Event, EventType, Direction, Magnitude, TimeHorizon
 from backend.services.ingestion import IngestionError
+from backend.services.classifier import ClassificationError
 
-# Use synchronous TestClient (simpler for route-level tests)
 client = TestClient(app, raise_server_exceptions=False)
 
 
@@ -25,6 +26,17 @@ MOCK_ARTICLE = Article(
     extraction_method="trafilatura",
 )
 
+MOCK_EVENT = Event(
+    event_type=EventType.EARNINGS,
+    focal_entities=["NVDA"],
+    direction=Direction.BULLISH,
+    magnitude=Magnitude.HIGH,
+    time_horizon=TimeHorizon.INTRADAY,
+    economic_mechanism="Raises full-year estimates across the AI GPU supply chain.",
+    event_summary="NVIDIA beat Q4 estimates on strong data center GPU demand.",
+    confidence=0.95,
+)
+
 
 class TestHealth:
     def test_health_returns_200(self):
@@ -34,19 +46,20 @@ class TestHealth:
 
 
 class TestAnalyze:
-    def test_valid_url_returns_200(self):
-        with patch(
-            "backend.api.routes.fetch_article",
-            new_callable=AsyncMock,
-            return_value=MOCK_ARTICLE,
+    def test_valid_url_returns_200_with_article_and_event(self):
+        with (
+            patch("backend.api.routes.fetch_article", new_callable=AsyncMock, return_value=MOCK_ARTICLE),
+            patch("backend.api.routes.classify_event", new_callable=AsyncMock, return_value=MOCK_EVENT),
         ):
             resp = client.post("/api/v1/analyze", json={"url": "https://example.com/article"})
 
         assert resp.status_code == 200
         body = resp.json()
         assert body["article"]["title"] == "NVIDIA Reports Record Revenue"
+        assert body["event"]["event_type"] == "earnings"
+        assert body["event"]["direction"] == "bullish"
+        assert body["event"]["time_horizon"] == "intraday"
         assert body["candidates"] == []
-        assert body["event"] is None
         assert "request_id" in body
         assert "duration_seconds" in body
 
@@ -69,6 +82,31 @@ class TestAnalyze:
         assert resp.status_code == 422
         assert "fetch failed" in resp.json()["detail"]
 
+    def test_classification_error_returns_422(self):
+        with (
+            patch("backend.api.routes.fetch_article", new_callable=AsyncMock, return_value=MOCK_ARTICLE),
+            patch(
+                "backend.api.routes.classify_event",
+                new_callable=AsyncMock,
+                side_effect=ClassificationError("LLM call failed"),
+            ),
+        ):
+            resp = client.post("/api/v1/analyze", json={"url": "https://example.com/article"})
+
+        assert resp.status_code == 422
+        assert "Classification error" in resp.json()["detail"]
+
     def test_non_http_scheme_rejected(self):
         resp = client.post("/api/v1/analyze", json={"url": "ftp://example.com/file"})
         assert resp.status_code == 422
+
+    def test_response_contains_all_required_fields(self):
+        with (
+            patch("backend.api.routes.fetch_article", new_callable=AsyncMock, return_value=MOCK_ARTICLE),
+            patch("backend.api.routes.classify_event", new_callable=AsyncMock, return_value=MOCK_EVENT),
+        ):
+            resp = client.post("/api/v1/analyze", json={"url": "https://example.com/article"})
+
+        body = resp.json()
+        for field in ("request_id", "analyzed_at", "article", "event", "candidates", "duration_seconds"):
+            assert field in body, f"Missing field: {field}"

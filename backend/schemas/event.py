@@ -30,11 +30,20 @@ class Magnitude(str, Enum):
     CRITICAL = "critical"
 
 
+class TimeHorizon(str, Enum):
+    INTRADAY = "intraday"   # same-day price reaction
+    DAYS = "days"           # 1–5 trading days
+    WEEKS = "weeks"         # 1–4 weeks
+    MONTHS = "months"       # 1–3 months
+    LONG_TERM = "long_term" # 3+ months / structural
+
+
 class Event(BaseModel):
     event_type: EventType
-    focal_entities: list[str]          # ticker symbols or company names
+    focal_entities: list[str]       # ticker symbols or company names
     direction: Direction
     magnitude: Magnitude
-    economic_mechanism: str            # one-sentence causal summary
-    summary: str                       # 2–3 sentence event summary
-    confidence: float                  # 0.0–1.0
+    time_horizon: TimeHorizon
+    economic_mechanism: str         # one-sentence causal chain, starts with a verb
+    event_summary: str              # 2–3 sentence summary of the market event
+    confidence: float               # 0.0–1.0

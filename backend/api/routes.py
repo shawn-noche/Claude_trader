@@ -5,9 +5,10 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException
 
-from backend.schemas.article import ArticleRequest, Article
+from backend.schemas.article import ArticleRequest
 from backend.schemas.analysis import FinalAnalysis
 from backend.services.ingestion import fetch_article, IngestionError
+from backend.services.classifier import classify_event, ClassificationError
 
 logger = logging.getLogger(__name__)
 
@@ -19,14 +20,16 @@ async def analyze(request: ArticleRequest) -> FinalAnalysis:
     """
     Full analysis pipeline.
 
-    Currently implements step 1 (ingestion only).
-    Classifier, impact engine, and ranker are stubs — will be wired in step 2/3.
+    Step 1: ingest article  (complete)
+    Step 2: classify event  (complete)
+    Step 3: impact mapping  (stub — coming next)
+    Step 4: ranking         (stub — coming next)
     """
     request_id = str(uuid.uuid4())
     start = time.perf_counter()
     url = str(request.url)
 
-    logger.info("analyze request_id=%s url=%s", request_id, url)
+    logger.info("analyze start request_id=%s url=%s", request_id, url)
 
     # Step 1 — ingest
     try:
@@ -35,20 +38,25 @@ async def analyze(request: ArticleRequest) -> FinalAnalysis:
         logger.warning("Ingestion failed request_id=%s: %s", request_id, exc)
         raise HTTPException(status_code=422, detail=str(exc))
 
-    # Steps 2–4 are stubs for now
-    # event = await classify_event(article)
+    # Step 2 — classify
+    try:
+        event = await classify_event(article)
+    except ClassificationError as exc:
+        logger.warning("Classification failed request_id=%s: %s", request_id, exc)
+        raise HTTPException(status_code=422, detail=f"Classification error: {exc}")
+
+    # Steps 3–4 — impact mapping and ranking (stubs, coming in step 3)
     # candidates = await map_impacts(event)
     # candidates = rank(candidates)
 
     duration = round(time.perf_counter() - start, 3)
     logger.info("analyze done request_id=%s duration=%.3fs", request_id, duration)
 
-    # Return a partial analysis (event/candidates/top_trade_idea are None until later steps)
     return FinalAnalysis(
         request_id=request_id,
         analyzed_at=datetime.now(timezone.utc),
         article=article,
-        event=None,        # type: ignore[arg-type]
+        event=event,
         candidates=[],
         top_trade_idea=None,
         duration_seconds=duration,

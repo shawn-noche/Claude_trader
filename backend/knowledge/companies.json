@@ -1,0 +1,263 @@
+[
+  {
+    "ticker": "NVDA",
+    "name": "NVIDIA",
+    "sector": "semiconductors",
+    "sub_sector": "gpu_design",
+    "roles": ["ai_accelerator", "gpu_designer", "networking_silicon", "system_software"],
+    "themes": ["ai_training", "ai_inference", "data_center_gpu", "hpc", "autonomous_vehicles"],
+    "description": "Dominant AI GPU designer with CUDA ecosystem lock-in. H100/H200/B200/GB200 series power large-scale AI training and inference. Also owns InfiniBand (Mellanox) and is expanding into networking silicon (Spectrum-X)."
+  },
+  {
+    "ticker": "AMD",
+    "name": "Advanced Micro Devices",
+    "sector": "semiconductors",
+    "sub_sector": "gpu_cpu_design",
+    "roles": ["ai_accelerator", "gpu_designer", "cpu_designer"],
+    "themes": ["ai_training", "ai_inference", "data_center_gpu", "hpc", "server_cpu"],
+    "description": "Fabless chip designer. MI300X AI GPU competes with NVIDIA H100. EPYC CPUs are gaining data center share. All leading-node chips manufactured at TSMC."
+  },
+  {
+    "ticker": "INTC",
+    "name": "Intel",
+    "sector": "semiconductors",
+    "sub_sector": "integrated_device_manufacturer",
+    "roles": ["cpu_designer", "foundry", "gpu_designer", "network_adapter"],
+    "themes": ["server_cpu", "foundry_services", "ai_inference", "edge_ai", "pc"],
+    "description": "Integrated device manufacturer. Operates Intel Foundry Services (IFS) as an external foundry. Xeon CPUs dominate server installed base. Gaudi AI accelerators compete in inference. Losing ground in both CPU and GPU/AI to AMD and NVIDIA."
+  },
+  {
+    "ticker": "AVGO",
+    "name": "Broadcom",
+    "sector": "semiconductors",
+    "sub_sector": "asic_and_networking",
+    "roles": ["asic_designer", "networking_silicon", "custom_ai_accelerator"],
+    "themes": ["custom_ai_asic", "data_center_networking", "ai_training", "hyperscaler_asic"],
+    "description": "Designs custom AI accelerators (XPUs) for Google and Meta. Also supplies merchant networking silicon (Tomahawk, Jericho) dominant in data center switching. VMware acquisition adds enterprise software."
+  },
+  {
+    "ticker": "MRVL",
+    "name": "Marvell Technology",
+    "sector": "semiconductors",
+    "sub_sector": "asic_and_networking",
+    "roles": ["asic_designer", "networking_silicon", "optical_dsp", "custom_ai_accelerator"],
+    "themes": ["custom_ai_asic", "data_center_networking", "optical_interconnect", "hyperscaler_asic"],
+    "description": "Custom AI ASIC design and networking silicon. Supplies optical DSPs (PAM4/coherent), Ethernet/InfiniBand controllers, and custom AI chips for Amazon (Trainium/Inferentia adjacent) and Microsoft. Key 5G baseband silicon."
+  },
+  {
+    "ticker": "QCOM",
+    "name": "Qualcomm",
+    "sector": "semiconductors",
+    "sub_sector": "mobile_and_edge",
+    "roles": ["mobile_soc_designer", "edge_ai_chip"],
+    "themes": ["mobile_ai", "edge_ai", "automotive_silicon", "pc_arm"],
+    "description": "Dominant mobile SoC designer (Snapdragon). Growing edge AI and on-device inference push. Snapdragon X Elite targets PC market. All chips fabbed at TSMC."
+  },
+  {
+    "ticker": "TSM",
+    "name": "TSMC",
+    "sector": "semiconductors",
+    "sub_sector": "foundry",
+    "roles": ["foundry", "advanced_packaging"],
+    "themes": ["leading_node_foundry", "cowos_packaging", "ai_chip_manufacturing", "geopolitical_risk"],
+    "description": "World's leading semiconductor foundry. Manufactures chips for NVIDIA, AMD, Apple, Qualcomm, Broadcom, Marvell, and others at N3/N2 nodes. Monopoly on CoWoS advanced packaging used in NVIDIA AI GPUs. Taiwan geopolitical exposure is a persistent risk factor."
+  },
+  {
+    "ticker": "SSNLF",
+    "name": "Samsung Electronics",
+    "sector": "semiconductors",
+    "sub_sector": "idm_and_memory",
+    "roles": ["foundry", "dram_manufacturer", "nand_manufacturer", "hbm_manufacturer"],
+    "themes": ["hbm_memory", "dram", "nand", "foundry_services", "smartphone"],
+    "description": "Vertically integrated semiconductor giant. Competes in foundry (Samsung Foundry, losing share to TSMC), DRAM, HBM (losing share to SK Hynix), and NAND. Also a major smartphone OEM. HBM3E quality issues have been a persistent headwind."
+  },
+  {
+    "ticker": "HXSCL",
+    "name": "SK Hynix",
+    "sector": "semiconductors",
+    "sub_sector": "memory",
+    "roles": ["dram_manufacturer", "hbm_manufacturer", "nand_manufacturer"],
+    "themes": ["hbm_memory", "dram", "ai_memory", "data_center_memory"],
+    "description": "World's leading HBM (High Bandwidth Memory) supplier. HBM3E is the primary memory in NVIDIA H100/H200 and AMD MI300X. NVIDIA sole-source dependency on SK Hynix for leading HBM creates significant supply chain sensitivity."
+  },
+  {
+    "ticker": "MU",
+    "name": "Micron Technology",
+    "sector": "semiconductors",
+    "sub_sector": "memory",
+    "roles": ["dram_manufacturer", "hbm_manufacturer", "nand_manufacturer"],
+    "themes": ["hbm_memory", "dram", "ai_memory", "data_center_memory", "automotive_memory"],
+    "description": "US-based DRAM and NAND manufacturer. Ramping HBM3E for NVIDIA GB200/Blackwell systems, gaining share from SK Hynix. Only US-based HBM manufacturer, with geopolitical tailwind. NAND business is cyclical and pressured."
+  },
+  {
+    "ticker": "ASML",
+    "name": "ASML Holding",
+    "sector": "semiconductors",
+    "sub_sector": "equipment",
+    "roles": ["lithography_equipment", "euv_monopoly"],
+    "themes": ["euv_lithography", "leading_node_enablement", "export_controls", "equipment_cycle"],
+    "description": "Monopoly supplier of EUV lithography systems required for leading-node chip manufacturing (N3/N2 and below). TSMC, Samsung, and Intel are primary customers. Subject to Dutch/US export controls restricting sales to China. High ASP machines (~$350M each) make order flow a leading indicator."
+  },
+  {
+    "ticker": "AMAT",
+    "name": "Applied Materials",
+    "sector": "semiconductors",
+    "sub_sector": "equipment",
+    "roles": ["deposition_equipment", "etch_equipment", "inspection_equipment", "advanced_packaging_equipment"],
+    "themes": ["equipment_cycle", "advanced_node", "advanced_packaging", "china_exposure"],
+    "description": "Largest semiconductor equipment company by revenue. Supplies deposition (CVD/PVD/ALD), etch, CMP, and advanced packaging equipment to all major fabs. Significant China revenue exposure (~30%) creates export control risk."
+  },
+  {
+    "ticker": "LRCX",
+    "name": "Lam Research",
+    "sector": "semiconductors",
+    "sub_sector": "equipment",
+    "roles": ["etch_equipment", "deposition_equipment", "cleaning_equipment"],
+    "themes": ["equipment_cycle", "advanced_node", "memory_equipment", "china_exposure"],
+    "description": "Leading supplier of etch and deposition equipment. Disproportionately exposed to memory (DRAM/NAND) equipment cycles. High China revenue share (~30%) creates export control risk. Critical for HBM manufacturing ramp at SK Hynix and Micron."
+  },
+  {
+    "ticker": "KLAC",
+    "name": "KLA Corporation",
+    "sector": "semiconductors",
+    "sub_sector": "equipment",
+    "roles": ["process_control_equipment", "inspection_equipment", "metrology_equipment"],
+    "themes": ["equipment_cycle", "advanced_node", "yield_improvement", "china_exposure"],
+    "description": "Dominant supplier of process control, inspection, and metrology equipment. More defensive than etch/deposition peers because yield control spend is non-discretionary. China exposure similar to peers."
+  },
+  {
+    "ticker": "AMKR",
+    "name": "Amkor Technology",
+    "sector": "semiconductors",
+    "sub_sector": "advanced_packaging",
+    "roles": ["osat", "advanced_packaging"],
+    "themes": ["advanced_packaging", "ai_chip_packaging", "heterogeneous_integration"],
+    "description": "Leading outsourced semiconductor assembly and test (OSAT) provider. Supplies advanced packaging for AI chips including NVIDIA. Benefits from CoWoS and fan-out packaging demand driven by AI GPU ramp."
+  },
+  {
+    "ticker": "ASX",
+    "name": "ASE Technology",
+    "sector": "semiconductors",
+    "sub_sector": "advanced_packaging",
+    "roles": ["osat", "advanced_packaging", "substrate_manufacturer"],
+    "themes": ["advanced_packaging", "ai_chip_packaging", "heterogeneous_integration"],
+    "description": "World's largest OSAT. Supplies advanced packaging and substrate services to semiconductor customers. Benefits from AI chip packaging demand and heterogeneous integration trends."
+  },
+  {
+    "ticker": "COHR",
+    "name": "Coherent Corp",
+    "sector": "optical_components",
+    "sub_sector": "optics_and_interconnect",
+    "roles": ["optical_transceiver", "laser_supplier", "datacom_optics"],
+    "themes": ["optical_interconnect", "data_center_bandwidth", "ai_scaling", "400g_800g_1600g"],
+    "description": "Leading supplier of optical transceivers and components for data center interconnect. 400G/800G/1600G transceiver demand driven by AI GPU cluster build-outs. Supplies hyperscalers and networking OEMs. Sensitive to data center capex cycles."
+  },
+  {
+    "ticker": "LITE",
+    "name": "Lumentum Holdings",
+    "sector": "optical_components",
+    "sub_sector": "optics_and_interconnect",
+    "roles": ["laser_supplier", "optical_transceiver", "3d_sensing"],
+    "themes": ["optical_interconnect", "data_center_bandwidth", "3d_sensing", "ai_scaling"],
+    "description": "Optical and photonic products for data center interconnect and 3D sensing (Apple Face ID). Data center exposure via transceivers and pump lasers. 3D sensing revenue tied to iPhone product cycles."
+  },
+  {
+    "ticker": "ANET",
+    "name": "Arista Networks",
+    "sector": "networking",
+    "sub_sector": "data_center_networking",
+    "roles": ["ethernet_switch_vendor", "network_os_vendor"],
+    "themes": ["data_center_networking", "ai_cluster_networking", "cloud_ethernet", "400g_800g"],
+    "description": "Dominant vendor for data center Ethernet switching (campus and cloud). Significant share of hyperscaler spine/leaf networks (Microsoft, Meta, Google). AI cluster networking (AI Ethernet Consortium) is a growing opportunity vs NVIDIA InfiniBand."
+  },
+  {
+    "ticker": "CSCO",
+    "name": "Cisco Systems",
+    "sector": "networking",
+    "sub_sector": "enterprise_and_dc_networking",
+    "roles": ["ethernet_switch_vendor", "router_vendor", "security_vendor"],
+    "themes": ["enterprise_networking", "data_center_networking", "ai_networking", "security"],
+    "description": "Largest networking company. Enterprise and data center networking, security, and observability. Losing data center share to Arista. Splunk acquisition adds observability/security. Less direct AI infrastructure leverage than Arista."
+  },
+  {
+    "ticker": "SMCI",
+    "name": "Super Micro Computer",
+    "sector": "server_infrastructure",
+    "sub_sector": "ai_servers",
+    "roles": ["server_oem", "ai_server_integrator", "rack_scale_solution"],
+    "themes": ["ai_server", "data_center_buildout", "gpu_server", "liquid_cooling"],
+    "description": "Leading AI server and rack-scale solution provider. Direct GPU server supplier to hyperscalers and enterprises. High NVIDIA GPU content per server makes SMCI revenue highly correlated with NVIDIA shipments. Accounting restatement issues have been a persistent risk factor."
+  },
+  {
+    "ticker": "HPE",
+    "name": "Hewlett Packard Enterprise",
+    "sector": "server_infrastructure",
+    "sub_sector": "server_and_storage",
+    "roles": ["server_oem", "hpc_system_integrator", "storage_vendor"],
+    "themes": ["ai_server", "hpc", "data_center_buildout", "enterprise_infrastructure"],
+    "description": "Enterprise server, storage, and networking vendor. Cray HPC business serves national labs and hyperscalers. ProLiant servers include GPU variants. Less AI-pure-play than SMCI; more diversified enterprise base."
+  },
+  {
+    "ticker": "DELL",
+    "name": "Dell Technologies",
+    "sector": "server_infrastructure",
+    "sub_sector": "server_and_storage",
+    "roles": ["server_oem", "storage_vendor", "ai_server_integrator"],
+    "themes": ["ai_server", "data_center_buildout", "gpu_server", "enterprise_infrastructure"],
+    "description": "Large-scale server and storage vendor. PowerEdge AI servers contain NVIDIA H100/H200/B200. AI server revenue is a major growth vector. Enterprise and government customer base provides diversification."
+  },
+  {
+    "ticker": "VRT",
+    "name": "Vertiv Holdings",
+    "sector": "power_and_cooling",
+    "sub_sector": "data_center_infrastructure",
+    "roles": ["power_management", "thermal_management", "ups_supplier", "liquid_cooling"],
+    "themes": ["data_center_power", "liquid_cooling", "ai_data_center_infrastructure", "power_density"],
+    "description": "Leading provider of power management (UPS, PDUs, switchgear) and thermal management (air cooling, liquid cooling) for data centers. AI GPU clusters require 10–30x more power density than traditional servers, driving liquid cooling demand. Hyperscaler capex is the primary demand driver."
+  },
+  {
+    "ticker": "ETN",
+    "name": "Eaton Corporation",
+    "sector": "power_and_cooling",
+    "sub_sector": "electrical_infrastructure",
+    "roles": ["power_management", "electrical_equipment", "ups_supplier"],
+    "themes": ["data_center_power", "electrical_grid", "ai_data_center_infrastructure", "electrification"],
+    "description": "Electrical power management company. Supplies switchgear, UPS systems, and electrical distribution equipment to data centers. Benefits from data center power demand surge driven by AI. Also exposed to electrical grid and industrial electrification megatrends."
+  },
+  {
+    "ticker": "MSFT",
+    "name": "Microsoft",
+    "sector": "hyperscaler",
+    "sub_sector": "cloud_and_ai",
+    "roles": ["hyperscaler", "ai_platform", "major_gpu_customer"],
+    "themes": ["azure_ai", "ai_capex", "llm_inference", "copilot", "enterprise_ai"],
+    "description": "Azure hyperscaler and OpenAI primary investor. Largest external buyer of NVIDIA AI GPUs. Azure AI capacity directly drives GPU demand. Microsoft capex guidance is a leading indicator for NVIDIA, SK Hynix, Vertiv, Arista, and others."
+  },
+  {
+    "ticker": "GOOGL",
+    "name": "Alphabet",
+    "sector": "hyperscaler",
+    "sub_sector": "cloud_and_ai",
+    "roles": ["hyperscaler", "ai_platform", "custom_asic_buyer", "major_gpu_customer"],
+    "themes": ["gcp_ai", "tpu_custom_silicon", "ai_capex", "llm_inference", "search_ai"],
+    "description": "GCP hyperscaler and AI research leader (DeepMind). Designs custom TPU AI accelerators with Broadcom. Also buys NVIDIA GPUs for training workloads. Alphabet capex drives demand for TSMC, Broadcom, Vertiv, Arista."
+  },
+  {
+    "ticker": "AMZN",
+    "name": "Amazon",
+    "sector": "hyperscaler",
+    "sub_sector": "cloud_and_ai",
+    "roles": ["hyperscaler", "ai_platform", "custom_asic_buyer", "major_gpu_customer"],
+    "themes": ["aws_ai", "trainium_inferentia", "ai_capex", "llm_inference", "custom_silicon"],
+    "description": "AWS hyperscaler with custom AI silicon (Trainium for training, Inferentia for inference). Buys NVIDIA GPUs for general workloads. Also buys Marvell networking ASICs. AWS capex is a major demand driver across the AI infrastructure stack."
+  },
+  {
+    "ticker": "META",
+    "name": "Meta Platforms",
+    "sector": "hyperscaler",
+    "sub_sector": "social_and_ai",
+    "roles": ["hyperscaler", "ai_platform", "major_gpu_customer"],
+    "themes": ["ai_capex", "llm_training", "recommendation_systems", "open_source_ai"],
+    "description": "Large-scale AI infrastructure buyer. Trains Llama models on massive NVIDIA GPU clusters. Developing custom MTIA AI inference chip with Broadcom. Among the largest buyers of NVIDIA H100/B200 GPUs. Meta capex guidance moves the AI infrastructure supply chain."
+  }
+]
