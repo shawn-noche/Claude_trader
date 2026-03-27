@@ -3,11 +3,17 @@ Deterministic candidate scoring and ranking.
 
 No LLM calls. Pure arithmetic so the formula is auditable and easy to tune.
 
+Product philosophy: the ranker is NOT only measuring economic exposure magnitude.
+It is also trying to surface underreacted trade opportunities — names where the
+market has not yet discounted the impact. A highly priced-in direct name (e.g. the
+obvious focal stock) can and should lose to a credible second-order name that the
+street has not yet modelled. Both economic directness and informational edge matter.
+
 Score components (weights sum to 1.0):
-  order_score      0.30  — directness to the event source
-  confidence       0.35  — LLM certainty about the impact
+  order_score      0.25  — directness to the event source
+  confidence       0.30  — LLM certainty about the impact
   tradability      0.20  — liquidity, float, catalyst clarity
-  priced_in_factor 0.15  — penalty for already-discounted information
+  priced_in_factor 0.25  — penalty for already-discounted information (equal weight to order)
 
 The raw weighted sum is then multiplied by a magnitude multiplier so that
 a CRITICAL event produces higher absolute scores than a LOW event across the
@@ -22,10 +28,10 @@ from backend.schemas.impact import ImpactCandidate, ImpactOrder
 # ---------------------------------------------------------------------------
 # Tunable weights  (must sum to 1.0)
 # ---------------------------------------------------------------------------
-_W_ORDER       = 0.30
-_W_CONFIDENCE  = 0.35
+_W_ORDER       = 0.25
+_W_CONFIDENCE  = 0.30
 _W_TRADABILITY = 0.20
-_W_PRICED_IN   = 0.15
+_W_PRICED_IN   = 0.25
 
 # Per-order base scores
 _ORDER_SCORE: dict[str, float] = {
@@ -74,7 +80,7 @@ def score_candidate(
 
 def _score(candidate: ImpactCandidate, magnitude: Magnitude) -> ImpactCandidate:
     order_score = _ORDER_SCORE.get(candidate.impact_order.value, 0.35)
-    priced_in_factor = 1.0 - (0.70 * candidate.priced_in_assessment)
+    priced_in_factor = 1.0 - (0.85 * candidate.priced_in_assessment)
     magnitude_mult = _MAGNITUDE_MULT.get(magnitude.value, 1.0)
 
     raw = (

@@ -7,7 +7,7 @@ No mocking needed — pure Python arithmetic.
 import pytest
 from backend.schemas.event import Magnitude, TimeHorizon
 from backend.schemas.impact import ImpactCandidate, ImpactOrder
-from backend.services.ranker import rank, score_candidate, _W_ORDER, _W_CONFIDENCE, _W_TRADABILITY
+from backend.services.ranker import rank, score_candidate, _W_ORDER
 
 
 # ---------------------------------------------------------------------------
@@ -170,15 +170,14 @@ class TestRank:
         ranked = rank([stale, fresh], Magnitude.HIGH)
         assert ranked[0].ticker == "F"
 
-    def test_priced_in_cannot_fully_negate_order_advantage(self):
-        # The formula is intentional: a direct, fully-priced-in name
-        # still ranks above a second-order fresh name at equal confidence.
-        # This tests that the order weight (30%) + confidence (35%) dominate.
+    def test_fresh_second_order_beats_stale_direct(self):
+        # Product behavior: a fully-priced-in direct name should lose to a
+        # credible second-order name that the market has not yet discounted.
+        # priced_in weight (0.25) is equal to order weight (0.25), so the
+        # priced-in penalty can overcome the order advantage when the gap is large.
         direct_stale  = make_candidate("D", priced_in_assessment=0.95,
                                        impact_order=ImpactOrder.DIRECT)
         second_fresh  = make_candidate("S", priced_in_assessment=0.0,
                                        impact_order=ImpactOrder.SECOND_ORDER)
         ranked = rank([direct_stale, second_fresh], Magnitude.HIGH)
-        # Document: direct (stale) wins — if you want second-order to surface,
-        # use a higher confidence or lower tradability on the direct name.
-        assert ranked[0].ticker == "D"
+        assert ranked[0].ticker == "S"
