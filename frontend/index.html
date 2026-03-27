@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event-to-Trade Engine</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0f1117;
+      --surface:  #1a1d27;
+      --border:   #2a2d3e;
+      --text:     #e2e4ed;
+      --muted:    #6b7280;
+      --accent:   #4f8ef7;
+      --green:    #34d399;
+      --red:      #f87171;
+      --yellow:   #fbbf24;
+      --purple:   #a78bfa;
+      --radius:   6px;
+      --mono:     "JetBrains Mono", "Fira Mono", "Cascadia Code", monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ───────────────────────────────────────────── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header h1 { font-size: 15px; font-weight: 600; letter-spacing: .02em; }
+    header .sub { font-size: 12px; color: var(--muted); }
+
+    main { max-width: 1100px; margin: 0 auto; padding: 28px 24px 60px; }
+
+    /* ── Input form ───────────────────────────────────────── */
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .input-row input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 14px;
+      padding: 9px 14px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .input-row input:focus { border-color: var(--accent); }
+    .input-row input::placeholder { color: var(--muted); }
+
+    button {
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius);
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 9px 20px;
+      transition: opacity .15s;
+      white-space: nowrap;
+    }
+    button:hover { opacity: .85; }
+    button:disabled { opacity: .45; cursor: default; }
+
+    /* ── Status banners ───────────────────────────────────── */
+    .banner {
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    .banner.loading { background: #1a2540; border: 1px solid #2a3a60; color: #7aa0e0; }
+    .banner.error   { background: #2a1a1a; border: 1px solid #5a2020; color: #f87171; }
+    .spinner {
+      display: inline-block;
+      width: 12px; height: 12px;
+      border: 2px solid #7aa0e0;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Section cards ────────────────────────────────────── */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: default;
+    }
+    .section-header.collapsible { cursor: pointer; user-select: none; }
+    .section-header.collapsible:hover { background: rgba(255,255,255,.02); }
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .section-body { padding: 14px 16px; }
+
+    /* ── Article summary ──────────────────────────────────── */
+    .article-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .article-meta  { font-size: 12px; color: var(--muted); }
+
+    /* ── Event classification ─────────────────────────────── */
+    .event-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .kv { display: flex; flex-direction: column; gap: 2px; }
+    .kv .k { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .kv .v { font-size: 13px; font-weight: 500; }
+
+    .badge {
+      display: inline-block;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 1px 7px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .badge.bullish  { background: rgba(52,211,153,.15); color: var(--green); }
+    .badge.bearish  { background: rgba(248,113,113,.15); color: var(--red); }
+    .badge.neutral  { background: rgba(107,114,128,.15); color: var(--muted); }
+    .badge.mixed    { background: rgba(251,191,36,.15);  color: var(--yellow); }
+    .badge.critical { background: rgba(248,113,113,.2);  color: var(--red); }
+    .badge.high     { background: rgba(251,191,36,.15);  color: var(--yellow); }
+    .badge.medium   { background: rgba(79,142,247,.15);  color: var(--accent); }
+    .badge.low      { background: rgba(107,114,128,.15); color: var(--muted); }
+    .badge.direct         { background: rgba(167,139,250,.15); color: var(--purple); }
+    .badge.second_order   { background: rgba(79,142,247,.15);  color: var(--accent); }
+    .badge.third_order    { background: rgba(107,114,128,.15); color: var(--muted); }
+
+    .mechanism-text {
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+      border-left: 2px solid var(--border);
+      padding-left: 10px;
+      margin-top: 10px;
+    }
+
+    /* ── Impact buckets ───────────────────────────────────── */
+    .bucket-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 600px) { .bucket-grid { grid-template-columns: 1fr; } }
+
+    .bucket {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .bucket-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 6px 10px;
+    }
+    .bucket-title.bull { background: rgba(52,211,153,.08); color: var(--green); }
+    .bucket-title.bear { background: rgba(248,113,113,.08); color: var(--red); }
+    .bucket-empty { padding: 8px 10px; font-size: 12px; color: var(--muted); }
+    .bucket-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .ticker-pill {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(255,255,255,.06);
+      border-radius: 3px;
+      padding: 1px 6px;
+      white-space: nowrap;
+    }
+    .bucket-item .name { color: var(--muted); flex: 1; }
+    .bucket-item .score {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ── Candidates table ─────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th {
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      padding: 6px 10px;
+      text-align: left;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    td { padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,.03); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+    td.mono { font-family: var(--mono); font-size: 11px; }
+
+    .score-bar-wrap { display: flex; align-items: center; gap: 7px; }
+    .score-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      flex: 1;
+      min-width: 40px;
+      max-width: 80px;
+    }
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--accent);
+      transition: width .3s;
+    }
+
+    /* ── Trade ideas ──────────────────────────────────────── */
+    .idea-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .idea-card:last-child { margin-bottom: 0; }
+    .idea-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.015);
+    }
+    .idea-ticker {
+      font-family: var(--mono);
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .idea-company { color: var(--muted); font-size: 12px; flex: 1; }
+    .direction-long  { color: var(--green); font-weight: 700; font-size: 12px; }
+    .direction-short { color: var(--red);   font-weight: 700; font-size: 12px; }
+
+    .idea-body { padding: 12px 14px; display: grid; gap: 10px; }
+    .idea-field { display: grid; gap: 2px; }
+    .idea-field .label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .idea-field .value { font-size: 13px; }
+    .idea-field .value.risk { color: var(--yellow); }
+
+    .conf-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .conf-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    /* ── Raw JSON ─────────────────────────────────────────── */
+    .chevron { font-size: 10px; color: var(--muted); transition: transform .2s; }
+    .chevron.open { transform: rotate(90deg); }
+    .json-body { display: none; }
+    .json-body.open { display: block; }
+    pre {
+      background: #0b0d14;
+      border-radius: 4px;
+      color: #8aa8d0;
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.55;
+      overflow-x: auto;
+      padding: 14px 16px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* ── Empty / hidden ───────────────────────────────────── */
+    .hidden { display: none !important; }
+    .empty-note { color: var(--muted); font-size: 12px; padding: 4px 0; }
+
+    /* ── Duration tag ─────────────────────────────────────── */
+    .duration { font-size: 11px; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Event-to-Trade Engine</h1>
+    <div class="sub">semiconductor &amp; AI infrastructure causal analysis</div>
+  </div>
+</header>
+
+<main>
+  <!-- Input -->
+  <div class="input-row">
+    <input id="url-input" type="url" placeholder="Paste a financial news article URL…" />
+    <button id="analyze-btn" onclick="runAnalysis()">Analyze</button>
+  </div>
+
+  <!-- Banners -->
+  <div id="banner-loading" class="banner loading hidden">
+    <span class="spinner"></span>Running analysis — fetching article, classifying event, mapping impacts…
+  </div>
+  <div id="banner-error" class="banner error hidden"></div>
+
+  <!-- Results (hidden until populated) -->
+  <div id="results" class="hidden">
+
+    <!-- Article -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Article</span>
+        <span id="duration" class="duration"></span>
+      </div>
+      <div class="section-body">
+        <div id="article-title" class="article-title"></div>
+        <div id="article-meta"  class="article-meta"></div>
+      </div>
+    </div>
+
+    <!-- Event classification -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Event Classification</span>
+      </div>
+      <div class="section-body">
+        <div class="event-grid" id="event-grid"></div>
+        <div id="event-mechanism" class="mechanism-text"></div>
+        <div id="event-summary" style="font-size:13px;margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <!-- Impact Buckets -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Impact Buckets</span>
+      </div>
+      <div class="section-body">
+        <div class="bucket-grid" id="bucket-grid"></div>
+      </div>
+    </div>
+
+    <!-- Ranked Candidates -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Ranked Candidates</span>
+      </div>
+      <div class="section-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Ticker</th>
+                <th>Company</th>
+                <th>Direction</th>
+                <th>Order</th>
+                <th>Mechanism</th>
+                <th>Confidence</th>
+                <th>Priced In</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody id="candidates-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Trade Ideas -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Top Trade Ideas</span>
+      </div>
+      <div class="section-body" id="ideas-body"></div>
+    </div>
+
+    <!-- Raw JSON -->
+    <div class="section">
+      <div class="section-header collapsible" onclick="toggleJson()">
+        <span class="section-title">Raw JSON</span>
+        <span class="chevron" id="json-chevron">&#9654;</span>
+      </div>
+      <div class="json-body" id="json-body">
+        <div class="section-body" style="padding:0">
+          <pre id="json-pre"></pre>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /results -->
+</main>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+
+  function badge(val, cls) {
+    const c = cls || val.toLowerCase().replace(/\s+/g, '_');
+    return `<span class="badge ${c}">${val}</span>`;
+  }
+
+  function pct(f) {
+    return (f * 100).toFixed(0) + '%';
+  }
+
+  function scoreBar(val) {
+    const pct = Math.round(val * 100);
+    return `<div class="score-bar-wrap">
+      <div class="score-bar"><div class="score-bar-fill" style="width:${pct}%"></div></div>
+      <span class="mono">${val.toFixed(3)}</span>
+    </div>`;
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // ── API call ───────────────────────────────────────────────────────────────
+
+  async function runAnalysis() {
+    const url = $('url-input').value.trim();
+    if (!url) { $('url-input').focus(); return; }
+
+    // Reset UI
+    $('banner-error').classList.add('hidden');
+    $('results').classList.add('hidden');
+    $('banner-loading').classList.remove('hidden');
+    $('analyze-btn').disabled = true;
+
+    try {
+      const resp = await fetch('/api/v1/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+
+      const data = await resp.json();
+
+      if (!resp.ok) {
+        throw new Error(data.detail || `HTTP ${resp.status}`);
+      }
+
+      renderResults(data);
+
+    } catch (err) {
+      $('banner-error').textContent = `Error: ${err.message}`;
+      $('banner-error').classList.remove('hidden');
+    } finally {
+      $('banner-loading').classList.add('hidden');
+      $('analyze-btn').disabled = false;
+    }
+  }
+
+  // Allow Enter key in input
+  $('url-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') runAnalysis();
+  });
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+
+  function renderResults(d) {
+    // Article
+    $('article-title').textContent = d.article.title || '(no title)';
+    const parts = [];
+    if (d.article.source_domain) parts.push(d.article.source_domain);
+    if (d.article.author)        parts.push(d.article.author);
+    if (d.article.published_date) parts.push(new Date(d.article.published_date).toLocaleDateString());
+    parts.push(`${d.article.char_count.toLocaleString()} chars · ${d.article.extraction_method}`);
+    $('article-meta').textContent = parts.join(' · ');
+    $('duration').textContent = `${d.duration_seconds}s`;
+
+    // Event
+    const ev = d.event;
+    if (ev) {
+      $('event-grid').innerHTML = `
+        <div class="kv"><div class="k">Type</div><div class="v">${badge(ev.event_type)}</div></div>
+        <div class="kv"><div class="k">Direction</div><div class="v">${badge(ev.direction)}</div></div>
+        <div class="kv"><div class="k">Magnitude</div><div class="v">${badge(ev.magnitude)}</div></div>
+        <div class="kv"><div class="k">Time Horizon</div><div class="v">${esc(ev.time_horizon)}</div></div>
+        <div class="kv"><div class="k">Focal Entities</div><div class="v">${ev.focal_entities.map(t => `<span class="ticker-pill">${esc(t)}</span>`).join(' ')}</div></div>
+        <div class="kv"><div class="k">Confidence</div><div class="v">${pct(ev.confidence)}</div></div>
+      `;
+      $('event-mechanism').textContent = ev.economic_mechanism;
+      $('event-summary').textContent = ev.event_summary;
+    }
+
+    // Impact Buckets
+    const buckets = d.impact_buckets;
+    const bucketDefs = [
+      { key: 'direct_beneficiaries',       label: 'Direct Beneficiaries',       cls: 'bull' },
+      { key: 'direct_losers',              label: 'Direct Losers',              cls: 'bear' },
+      { key: 'second_order_beneficiaries', label: '2nd-Order Beneficiaries',    cls: 'bull' },
+      { key: 'second_order_losers',        label: '2nd-Order Losers',           cls: 'bear' },
+      { key: 'third_order_beneficiaries',  label: '3rd-Order Beneficiaries',    cls: 'bull' },
+      { key: 'third_order_losers',         label: '3rd-Order Losers',           cls: 'bear' },
+    ];
+    $('bucket-grid').innerHTML = bucketDefs.map(b => {
+      const items = buckets[b.key] || [];
+      const itemsHtml = items.length
+        ? items.map(c => `
+            <div class="bucket-item">
+              <span class="ticker-pill">${esc(c.ticker)}</span>
+              <span class="name">${esc(c.company_name)}</span>
+              <span class="score">${c.final_score.toFixed(3)}</span>
+            </div>`).join('')
+        : `<div class="bucket-empty">—</div>`;
+      return `<div class="bucket">
+        <div class="bucket-title ${b.cls}">${b.label}</div>
+        ${itemsHtml}
+      </div>`;
+    }).join('');
+
+    // Candidates table
+    $('candidates-tbody').innerHTML = (d.candidates || []).map(c => `
+      <tr>
+        <td><span class="ticker-pill">${esc(c.ticker)}</span></td>
+        <td>${esc(c.company_name)}</td>
+        <td>${badge(c.impact_direction)}</td>
+        <td>${badge(c.impact_order, c.impact_order)}</td>
+        <td style="max-width:280px;font-size:11px;color:var(--muted)">${esc(c.mechanism)}</td>
+        <td class="mono">${pct(c.confidence)}</td>
+        <td class="mono">${pct(c.priced_in_assessment)}</td>
+        <td style="min-width:120px">${scoreBar(c.final_score)}</td>
+      </tr>`).join('') || '<tr><td colspan="8" class="empty-note" style="padding:12px">No candidates.</td></tr>';
+
+    // Trade Ideas
+    const ideas = d.top_trade_ideas || [];
+    if (ideas.length === 0) {
+      $('ideas-body').innerHTML = '<div class="empty-note">No trade ideas generated.</div>';
+    } else {
+      $('ideas-body').innerHTML = ideas.map((idea, i) => `
+        <div class="idea-card">
+          <div class="idea-header">
+            <span style="font-size:11px;color:var(--muted)">#${i+1}</span>
+            <span class="idea-ticker">${esc(idea.ticker)}</span>
+            <span class="idea-company">${esc(idea.company_name)}</span>
+            <span class="direction-${idea.trade_direction}">${idea.trade_direction.toUpperCase()}</span>
+            ${badge(idea.chain_position, idea.chain_position)}
+            <div class="conf-row">
+              <div class="conf-dot" style="background:${confColor(idea.confidence)}"></div>
+              ${pct(idea.confidence)} confidence
+            </div>
+          </div>
+          <div class="idea-body">
+            <div class="idea-field">
+              <div class="label">Why Now</div>
+              <div class="value">${esc(idea.why_now)}</div>
+            </div>
+            <div class="idea-field">
+              <div class="label">Key Mechanism</div>
+              <div class="value">${esc(idea.key_mechanism)}</div>
+            </div>
+            <div class="idea-field">
+              <div class="label">Why It May Be Underappreciated</div>
+              <div class="value">${esc(idea.why_it_may_be_underappreciated)}</div>
+            </div>
+            <div class="idea-field">
+              <div class="label">Invalidation / Risk</div>
+              <div class="value risk">${esc(idea.invalidation_or_risk)}</div>
+            </div>
+          </div>
+        </div>`).join('');
+    }
+
+    // Raw JSON
+    $('json-pre').textContent = JSON.stringify(d, null, 2);
+
+    // Show results
+    $('results').classList.remove('hidden');
+    // Close JSON panel on new result
+    $('json-body').classList.remove('open');
+    $('json-chevron').classList.remove('open');
+  }
+
+  function confColor(f) {
+    if (f >= 0.75) return 'var(--green)';
+    if (f >= 0.55) return 'var(--yellow)';
+    return 'var(--red)';
+  }
+
+  function toggleJson() {
+    $('json-body').classList.toggle('open');
+    $('json-chevron').classList.toggle('open');
+  }
+</script>
+</body>
+</html>

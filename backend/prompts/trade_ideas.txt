@@ -33,5 +33,6 @@ Return a JSON array of up to 3 objects. Use fewer objects if fewer than 3 credib
 - Do not repeat what the event is — focus on the non-obvious downstream implication
 - Do not use "may", "could potentially", "might" — commit to the thesis
 - Do not invent tickers or companies not in the candidate list
+- Do NOT invent specific financial figures (dollar amounts, percentages, unit volumes) unless they appear explicitly in the article text or the candidate's mechanism field. Use directional language ("higher", "incremental", "meaningful uplift") instead of fabricated numbers.
 
 Return ONLY the JSON array. No markdown fences, no explanation, no preamble.

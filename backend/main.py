@@ -1,11 +1,15 @@
 import logging
 import sys
+from pathlib import Path
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from backend.config import settings
 from backend.api.routes import router
+
+_FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -20,6 +24,14 @@ app = FastAPI(
 )
 
 app.include_router(router, prefix="/api/v1")
+
+# Serve the single-page frontend at /
+if _FRONTEND_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(_FRONTEND_DIR)), name="static")
+
+    @app.get("/", include_in_schema=False)
+    async def index():
+        return FileResponse(str(_FRONTEND_DIR / "index.html"))
 
 
 @app.exception_handler(Exception)
