@@ -1,7 +1,7 @@
 from .article import ArticleRequest, Article
 from .event import Event, EventType, Direction, Magnitude, TimeHorizon
 from .impact import ImpactCandidate, ImpactOrder
-from .analysis import FinalAnalysis
+from .analysis import FinalAnalysis, TradeIdea, ImpactBuckets
 
 __all__ = [
     "ArticleRequest",
@@ -14,4 +14,6 @@ __all__ = [
     "ImpactCandidate",
     "ImpactOrder",
     "FinalAnalysis",
+    "TradeIdea",
+    "ImpactBuckets",
 ]

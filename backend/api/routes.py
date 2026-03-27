@@ -6,11 +6,13 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException
 
 from backend.schemas.article import ArticleRequest
-from backend.schemas.analysis import FinalAnalysis
+from backend.schemas.analysis import FinalAnalysis, ImpactBuckets
+from backend.schemas.impact import ImpactCandidate
 from backend.services.ingestion import fetch_article, IngestionError
 from backend.services.classifier import classify_event, ClassificationError
 from backend.services.impact_engine import map_impacts, ImpactMappingError
 from backend.services.ranker import rank
+from backend.services.trade_idea_generator import generate_trade_ideas
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +24,12 @@ async def analyze(request: ArticleRequest) -> FinalAnalysis:
     """
     Full analysis pipeline.
 
-    Step 1: ingest article       (complete)
-    Step 2: classify event       (complete)
-    Step 3: map impacts via KB   (complete)
-    Step 4: rank candidates      (complete)
-    Step 5: trade idea narrative (simple version — full LLM narrative in next step)
+    Step 1: ingest article           (complete)
+    Step 2: classify event           (complete)
+    Step 3: map impacts via KB       (complete)
+    Step 4: rank candidates          (complete)
+    Step 5: build impact buckets     (complete)
+    Step 6: generate top trade ideas (complete)
     """
     request_id = str(uuid.uuid4())
     start = time.perf_counter()
@@ -58,13 +61,20 @@ async def analyze(request: ArticleRequest) -> FinalAnalysis:
     # Step 4 — rank
     candidates = rank(candidates, event.magnitude)
 
-    # Step 5 — top trade idea (simple summary; full LLM narrative comes next step)
-    top_trade_idea = _build_simple_trade_idea(candidates)
+    # Step 5 — bucket by direction × order
+    impact_buckets = _build_impact_buckets(candidates)
+
+    # Step 6 — generate trade ideas (graceful degradation: errors/empty → [])
+    try:
+        top_trade_ideas = await generate_trade_ideas(event, candidates)
+    except Exception as exc:
+        logger.warning("Trade idea generation failed request_id=%s: %s", request_id, exc)
+        top_trade_ideas = []
 
     duration = round(time.perf_counter() - start, 3)
     logger.info(
-        "analyze done request_id=%s duration=%.3fs candidates=%d",
-        request_id, duration, len(candidates),
+        "analyze done request_id=%s duration=%.3fs candidates=%d ideas=%d",
+        request_id, duration, len(candidates), len(top_trade_ideas),
     )
 
     return FinalAnalysis(
@@ -72,8 +82,9 @@ async def analyze(request: ArticleRequest) -> FinalAnalysis:
         analyzed_at=datetime.now(timezone.utc),
         article=article,
         event=event,
+        impact_buckets=impact_buckets,
         candidates=candidates,
-        top_trade_idea=top_trade_idea,
+        top_trade_ideas=top_trade_ideas,
         duration_seconds=duration,
     )
 
@@ -87,26 +98,23 @@ async def health() -> dict:
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _build_simple_trade_idea(candidates: list) -> str | None:
-    """
-    Build a one-line trade idea from the top-ranked non-obvious candidate.
+def _build_impact_buckets(candidates: list[ImpactCandidate]) -> ImpactBuckets:
+    """Split ranked candidates into (order × direction) buckets. Neutral candidates excluded."""
+    buckets: dict[str, list[ImpactCandidate]] = {
+        "direct_beneficiaries": [],
+        "second_order_beneficiaries": [],
+        "third_order_beneficiaries": [],
+        "direct_losers": [],
+        "second_order_losers": [],
+        "third_order_losers": [],
+    }
 
-    Skips direct/focal candidates when a higher-order play is available.
-    Full LLM narrative (trade_ideas.txt) is wired in the next implementation step.
-    """
-    if not candidates:
-        return None
+    for c in candidates:
+        if c.impact_direction == "neutral":
+            continue
+        suffix = "beneficiaries" if c.impact_direction == "bullish" else "losers"
+        key = f"{c.impact_order.value}_{suffix}"
+        if key in buckets:
+            buckets[key].append(c)
 
-    # Prefer the first second/third-order candidate over the top direct hit
-    non_obvious = next(
-        (c for c in candidates if c.impact_order.value != "direct"),
-        candidates[0],  # fall back to best overall if all are direct
-    )
-
-    direction_word = "Long" if non_obvious.impact_direction == "bullish" else "Short"
-    order_label = non_obvious.impact_order.value.replace("_", "-")
-    return (
-        f"{direction_word} {non_obvious.ticker} ({non_obvious.company_name}) — "
-        f"{order_label} play, score={non_obvious.final_score:.3f}: "
-        f"{non_obvious.mechanism}"
-    )
+    return ImpactBuckets(**buckets)
