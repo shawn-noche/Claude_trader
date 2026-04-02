@@ -89,6 +89,91 @@ def fetch_multiple(
     return results
 
 
+def fetch_multiple_batch(
+    tickers: list[str],
+    days: int = 200,
+    end_date: Optional[datetime] = None,
+    batch_size: int = 200,
+) -> dict[str, pd.DataFrame]:
+    """
+    Batch download OHLCV data for many tickers using a single yfinance call
+    per batch. Much faster than one request per ticker for large universes.
+
+    Args:
+        tickers:    List of ticker symbols.
+        days:       Calendar days of history to fetch.
+        end_date:   Optional end date (defaults to today).
+        batch_size: How many tickers to download per yfinance call.
+
+    Returns:
+        Dict {ticker: DataFrame}. Tickers with no data are omitted.
+    """
+    if end_date is None:
+        end_date = datetime.today()
+
+    start_date = end_date - timedelta(days=days)
+    start_str = start_date.strftime("%Y-%m-%d")
+    end_str = (end_date + timedelta(days=1)).strftime("%Y-%m-%d")
+
+    cols_needed = ["Open", "High", "Low", "Close", "Volume"]
+    results: dict[str, pd.DataFrame] = {}
+    total = len(tickers)
+    total_batches = (total + batch_size - 1) // batch_size
+
+    for batch_idx in range(0, total, batch_size):
+        batch = tickers[batch_idx: batch_idx + batch_size]
+        batch_num = batch_idx // batch_size + 1
+        logger.info(
+            "Fetching batch %d/%d (%d tickers)...", batch_num, total_batches, len(batch)
+        )
+
+        try:
+            raw = yf.download(
+                batch,
+                start=start_str,
+                end=end_str,
+                progress=False,
+                auto_adjust=True,
+                group_by="ticker",
+            )
+        except Exception as exc:
+            logger.error("Batch %d/%d download failed: %s", batch_num, total_batches, exc)
+            continue
+
+        if raw is None or raw.empty:
+            continue
+
+        if isinstance(raw.columns, pd.MultiIndex):
+            # Normal multi-ticker result: top-level = ticker, second = OHLCV
+            for ticker in batch:
+                try:
+                    available = [c for c in cols_needed if c in raw[ticker].columns]
+                    df = raw[ticker][available].dropna(subset=["Close"]).copy()
+                    if not df.empty:
+                        df.index.name = "Date"
+                        results[ticker] = df
+                except (KeyError, Exception):
+                    pass
+        else:
+            # Single-ticker batch — flat columns
+            if len(batch) == 1:
+                available = [c for c in cols_needed if c in raw.columns]
+                df = raw[available].dropna(subset=["Close"]).copy()
+                if not df.empty:
+                    df.index.name = "Date"
+                    results[batch[0]] = df
+
+        logger.info(
+            "Batch %d/%d done — %d/%d succeeded so far.",
+            batch_num, total_batches, len(results), total,
+        )
+
+    logger.info(
+        "Batch fetch complete: %d/%d tickers returned data.", len(results), total
+    )
+    return results
+
+
 def get_current_price(ticker: str) -> Optional[float]:
     """
     Return the latest closing price for a ticker.

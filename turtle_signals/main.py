@@ -45,7 +45,8 @@ def run_daily_scan(account_equity: float | None = None) -> dict:
     Returns a dict with:
       entry_signals, exit_alerts, add_alerts, time_alerts, watchlist, open_trades
     """
-    from config import TICKERS, INITIAL_CAPITAL
+    from config import TICKERS, INITIAL_CAPITAL, UNIVERSE
+    from data.universe import get_universe_tickers
     from data.cache import load_all
     from signals.turtle_signals import compute_signals, compute_watchlist_proximity
     from signals.filters import apply_s1_filter
@@ -57,8 +58,13 @@ def run_daily_scan(account_equity: float | None = None) -> dict:
     equity = account_equity or INITIAL_CAPITAL
     today_str = str(date.today())
 
-    logger.info("Starting daily scan for %s...", today_str)
-    price_data = load_all(TICKERS, days=200)
+    tickers = get_universe_tickers(UNIVERSE) if UNIVERSE != "custom" else TICKERS
+    if not tickers:
+        logger.error("No tickers loaded — check UNIVERSE setting in config.py")
+        return {}
+
+    logger.info("Starting daily scan for %s (%d tickers)...", today_str, len(tickers))
+    price_data = load_all(tickers, days=200)
     logger.info("Loaded price data for %d tickers.", len(price_data))
 
     all_entry_signals = []

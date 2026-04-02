@@ -49,17 +49,19 @@ TIME_EXIT_THRESHOLD = 0.005   # Less than 0.5% movement triggers time-exit warni
 # ─── Stop-Loss ──────────────────────────────────────────────────────────────────────────
 STOP_ATR_MULTIPLIER = 2.0     # Stop = Entry ± (2 × ATR)
 
-# ─── Watchlist Tickers ───────────────────────────────────────────────────────────────────
+# ─── Universe / Ticker Selection ─────────────────────────────────────────────
+# Options:
+#   "russell2000"  — scan all ~2,000 Russell 2000 small-cap stocks (downloaded
+#                    automatically from iShares IWM and cached for 7 days)
+#   "custom"       — use the TICKERS list below
+UNIVERSE = "russell2000"
+
+# Used when UNIVERSE = "custom"
 TICKERS = [
-    # Equities
     "SPY", "QQQ", "IWM",
-    # Commodities
     "GLD", "SLV", "USO", "DBA",
-    # Bonds
     "TLT", "IEF",
-    # Currencies
     "FXE", "FXY", "UUP",
-    # Real Assets
     "VNQ", "IAU",
 ]
 

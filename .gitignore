@@ -10,4 +10,4 @@ dist/
 build/
 .DS_Store
 user_settings.json
-turtle_signals/data/
+turtle_signals/data/cache/

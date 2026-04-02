@@ -13,7 +13,7 @@ from typing import Optional
 import pandas as pd
 
 from config import DATA_DIR, CACHE_TTL_HOURS
-from data.fetcher import fetch_ohlcv
+from data.fetcher import fetch_ohlcv, fetch_multiple_batch
 
 logger = logging.getLogger(__name__)
 
@@ -74,15 +74,43 @@ def load_cached(ticker: str, days: int = 200) -> Optional[pd.DataFrame]:
 def load_all(tickers: list[str], days: int = 200) -> dict[str, pd.DataFrame]:
     """
     Load OHLCV data for all tickers, using cache where possible.
+    Stale / missing tickers are batch-fetched in one yfinance call for speed.
     Returns a dict {ticker: DataFrame}.
     """
     result: dict[str, pd.DataFrame] = {}
+    stale: list[str] = []
+
+    # First pass: serve from cache
     for ticker in tickers:
-        df = load_cached(ticker, days=days)
-        if df is not None and not df.empty:
+        path = _cache_path(ticker)
+        if not _is_stale(path):
+            try:
+                df = pd.read_csv(path, index_col="Date", parse_dates=True)
+                if len(df) >= days * 0.7:
+                    result[ticker] = df
+                    continue
+            except Exception:
+                pass
+        stale.append(ticker)
+
+    # Batch fetch everything that was stale or missing
+    if stale:
+        logger.info(
+            "%d tickers need fetching (%d already cached).",
+            len(stale), len(result),
+        )
+        fresh = fetch_multiple_batch(stale, days=days)
+        for ticker, df in fresh.items():
             result[ticker] = df
-        else:
+            try:
+                df.to_csv(_cache_path(ticker))
+            except Exception as exc:
+                logger.warning("Could not write cache for %s: %s", ticker, exc)
+
+        missed = set(stale) - set(fresh.keys())
+        for ticker in missed:
             logger.warning("No data available for %s — skipped.", ticker)
+
     return result
 
 
